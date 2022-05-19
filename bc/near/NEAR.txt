@@ -1,0 +1,58 @@
+[33mWARN[0m[2022-05-09T11:01:18-07:00] The currently-running Kurtosis engine version is '1.17.3' but the latest version is '1.17.4'; you can pull the latest fixes by running 'kurtosis engine restart' 
+[36mINFO[0m[2022-05-09T11:01:18-07:00] Creating enclave 'near-kurtosis-module.1652119278' for the module to execute inside... 
+[36mINFO[0m[2022-05-09T11:01:22-07:00] Enclave 'near-kurtosis-module.1652119278' created successfully 
+[36mINFO[0m[2022-05-09T11:01:22-07:00] Loading module 'kurtosistech/near-kurtosis-module' with load params '{}' inside enclave 'near-kurtosis-module.1652119278'... 
+[36mINFO[0m[2022-05-09T11:01:25-07:00] Module loaded successfully                   
+[36mINFO[0m[2022-05-09T11:01:25-07:00] Executing the module with execute params '{"backendIpAddress":"192.168.56.105"}'... 
+[36mINFO[0m[2022-05-09T11:01:25-07:00] ----------------------- MODULE LOGS ---------------------- 
+NEAR module initialization args:
+{}
+Deserializing the following params string:
+{"backendIpAddress":"192.168.56.105"}
+Deserialized the params string into the following params object: {"backendIpAddress":"192.168.56.105"}
+Adding contract helper DB running on port '5432'
+Adding indexer service...
+Adding contract helper service running on port '3000'
+Adding wallet running on port '3004'
+[36mINFO[0m[2022-05-09T11:02:19-07:00] --------------------- END MODULE LOGS -------------------- 
+[36mINFO[0m[2022-05-09T11:02:19-07:00] Module executed successfully and returned the following result:
+{
+    "networkName": "localnet",
+    "rootValidatorKey": {
+        "account_id": "test.near",
+        "public_key": "ed25519:8rFyzkwEL3PrMKHtzbjh8cypQjSgKCWFrJmfpvPPPJHA",
+        "secret_key": "ed25519:47DykWNfmqjNCUrnS6753XMTqarhnT8CF7oYaU9VGdqCLDvj8pXn6gKqcLLZCM2Ef2UTikGbCEEGkFsmUrGFWg2Y"
+    },
+    "nearNodeRpcUrl": "http://127.0.0.1:49318",
+    "contractHelperServiceUrl": "http://127.0.0.1:49319",
+    "walletUrl": "http://127.0.0.1:49322",
+    "explorerUrl": "http://127.0.0.1:49321"
+} 
+============================================================ SUCCESS ================================================================================
+  ACTION Paste the following in your terminal to declare the following variables so you can use them:
+
+           export NEAR_ENV="local"
+           export NEAR_CLI_LOCALNET_NETWORK_ID="localnet"
+           export NEAR_NODE_URL="http://127.0.0.1:49318"
+           export NEAR_CLI_LOCALNET_KEY_PATH="/root/.neartosis/2022-05-09T11.01.18/validator-key.json"
+           export NEAR_WALLET_URL="http://127.0.0.1:49322"
+           export NEAR_HELPER_URL="http://127.0.0.1:49319"
+           export NEAR_HELPER_ACCOUNT="test.near"
+           export NEAR_EXPLORER_URL="http://127.0.0.1:49321"
+  
+  ACTION Paste the following into your terminal now to use the 'local_near' command as a replacement for the NEAR CLI for connecting to your
+         local cluster (e.g. 'local_near login'):
+  
+         alias local_near='NEAR_ENV="local" NEAR_CLI_LOCALNET_NETWORK_ID="localnet" NEAR_NODE_URL="http://127.0.0.1:49318" NEAR_CLI_LOCALNET_KEY_PATH="/root/.neartosis/2022-05-09T11.01.18/validator-key.json" NEAR_WALLET_URL="http://127.0.0.1:49322" NEAR_HELPER_URL="http://127.0.0.1:49319" NEAR_HELPER_ACCOUNT="test.near" NEAR_EXPLORER_URL="http://127.0.0.1:49321" near'
+  
+  ACTION If you want the 'local_near' command available in all your new terminal windows, add the above alias into your .bash_profile/.bashrc/.zshrc
+         file and open a new terminal window.
+  
+  ACTION To stop your cluster:
+          1. Run 'kurtosis enclave ls'
+          2. Copy the enclave ID that your NEAR cluster is running inside
+          3. Run 'kurtosis enclave stop ENCLAVE_ID_YOU_COPIED'
+  
+  ACTION To remove stopped clusters, run 'kurtosis clean'. You can also run 'kurtosis clean -a' to stop & remove *all* clusters,
+         including running ones.
+============================================================ SUCCESS ================================================================================

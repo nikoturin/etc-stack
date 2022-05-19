@@ -1,0 +1,159 @@
+version: '3.7'
+
+services:
+  gtw:
+    image: nginx:1.17.0
+    depends_on:
+      - adminer
+      - api
+      - web
+      - mq
+    volumes:
+      - ./gtw/nginx.conf:/etc/nginx/nginx.conf
+      - ./gtw/server.crt:/etc/nginx/server.crt
+      - ./gtw/server.key:/etc/nginx/server.key
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      default:
+        aliases:
+          - adminer.dev.etc.com.mx
+          - api.dev.etc.com.mx
+          - dev.etc.com.mx
+          - mq.dev.etc.com.mx
+  db:
+     image: postgres:11.5
+     environment:
+        PGDATA: /var/lib/postgresql/data/pgdata
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_DB: postgres
+     volumes:
+        - db-data-volume:/var/lib/postgresql/data/pgdata
+        - ./db:/sql
+     ports:
+        - 5432:5432
+     networks:
+        default:
+          aliases:
+             - db.dev.etc.com.mx
+  mq:
+    image: rabbitmq:3.8-management
+    volumes:
+      - ./mq/rabbitmq/data:/var/lib/rabbitmq/:z
+      - ./mq/rabbitmq/log:/var/log/rabbitmq/:z
+      - ./mq/rabbitmq/script:/var/script/rabbitmq/:z
+    ports:
+        - 5672:5672
+        - 15672:15672
+    networks:
+       default:
+         aliases:
+            - mq.dev.etc.com.mx
+
+  api:
+    image: forg-node-yarn
+    build:
+      context: .
+      dockerfile: dockerfiles/yarn/yarn.Dockerfile
+    depends_on:
+      - db
+    environment:
+      #DEV-DB-LOCAL
+      RDS_HOSTNAME: db.dev.etc.com.mx
+      RDS_DB_NAME: postgres
+      RDS_USERNAME: postgres
+      RDS_PASSWORD: postgres
+      AWS_ACCESS_KEY_ID: xxxx
+      AWS_SECRET_ACCESS_KEY: xxxx
+      AWS_COGNITO_USER_SECRET: xxxx
+      AWS_COGNITO_USER_ACCESS_KEY: xxxx 
+      AWS_COGNITO_USERPOOLID: xxxx
+      AWS_COGNITO_REGION: xxxx
+      PORT: 8080
+      NODE_ENV: development
+    volumes:
+      - ./etc-api:/app
+      - api-node_modules:/app/node_modules/
+    command: sh -c 'echo "Running install ..."
+      && yarn install
+      && echo "Running migration..."
+      && echo "Running ..."
+      && yarn run dev'
+
+  web:
+    image: forg-node-yarn
+    environment:
+      NUXT_HOST: 0.0.0.0
+      NUXT_PORT: 8080
+      API_HOST: api.dev.etc.com.mx
+      API_PORT: 443
+      API_PREFIX: /
+      API_HTTPS: 1
+      AWS_COGNITO_USERPOOLID: xxx
+      AWS_COGNITO_CLIENTID: xxx
+
+    volumes:
+      - ./etc-web-app:/app
+      - web-node_modules:/app/node_modules/
+    command: sh -c 'echo "Running install ..."
+        && yarn install
+        && echo "Running ..."
+        && yarn run dev'
+
+  adminer:
+    image: adminer:4.7.1-standalone
+    depends_on:
+      - db
+    environment:
+      ADMINER_PLUGINS: tables-filter tinymce table-indexes-structure table-structure
+      ADMINER_DESIGN: pepa-linha
+      ADMINER_DEFAULT_SERVER: db.dev.etc.com.mx
+
+  dhl:
+    image: nikoturin/etc-stack-img:etc-stack-dhl
+    environment:
+      NEAR_ENV: "local"
+      NEAR_CLI_LOCALNET_NETWORK_ID: "localnet"
+      NEAR_NODE_URL: "http://192.168.56.105:49186"
+      NEAR_CLI_LOCALNET_KEY_PATH: "/var/src/near/neartosis/validator-key.json"
+      NEAR_WALLET_URL: "http://192.168.56.105:49190"
+      NEAR_HELPER_URL: "http://192.168.56.105:49187"
+      NEAR_HELPER_ACCOUNT: "test.near"
+      NEAR_EXPLORER_URL: "http://192.168.56.105:49189"
+
+    volumes:
+      - ./bc/hyper/dhl:/var/src/hyper/:z
+      - ./bc/near/sc:/var/src/near/:z
+      - ./mq/rabbitmq/src:/var/src/rabbitmq/:z
+    restart: on-failure
+    #command: ["sleep","infinity"]
+    command: >
+      bash -c " echo 'Getting up hyperledger fabric and near CLI...'
+      && sleep infinity"
+
+  pub:
+    image: nikoturin/etc-stack-img:etc-stack-pub_sub
+    volumes:
+      - ./mq/rabbitmq/src:/var/src/rabbitmq/:z
+    command: >
+      bash -c " echo 'Send Msg QUEUE'
+      && cd /var/src/rabbitmq
+      && while true;do python3 send.py;done"
+
+  sub:
+    image: nikoturin/etc-stack-img:etc-stack-pub_sub
+    volumes:
+      - ./mq/rabbitmq/src:/var/src/rabbitmq/:z
+    command: >
+      bash -c " echo 'Receive Msg QUEUE'
+      && cd /var/src/rabbitmq
+      && python3 oper2Receive.py"
+
+  #will check if adminer should be necesary to dbsu, although I think it should not.
+
+volumes:
+  db-data-volume:
+  api-node_modules:
+  web-node_modules:
