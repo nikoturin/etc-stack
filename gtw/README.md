@@ -12,9 +12,9 @@ ROOT SSL: This files necesary to validate local URL.
 
 MaC -- TRUST root SSL
 
-1.- Open KeyChain Access on Mac and go to Certificates category on system.
-2.- Import rootCA.pem Files>importa items.
-3.- Double click on rootCA.pem importated, and accept trust.
+- Open KeyChain Access on Mac and go to Certificates category on system.
+- Import rootCA.pem Files>importa items.
+- Double click on rootCA.pem importated, and accept trust.
 
 DOMAIN SSL Certificate:
 
